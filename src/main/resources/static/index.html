@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hospital Management</title>
+</head>
+
+<body>
+
+    <h1>Hospital Management System</h1>
+
+    <hr>
+
+    <h2>Add Patient</h2>
+
+    <input
+        type="text"
+        id="name"
+        placeholder="Enter patient name"
+    >
+
+    <br><br>
+
+    <input
+        type="number"
+        id="age"
+        placeholder="Enter patient age"
+    >
+
+    <br><br>
+
+    <input
+        type="text"
+        id="gender"
+        placeholder="Enter patient gender"
+    >
+
+    <br><br>
+
+    <button onclick="addPatient()">
+        Add Patient
+    </button>
+
+    <hr>
+
+    <h2>Delete Patient</h2>
+
+    <input
+        type="text"
+        id="deleteName"
+        placeholder="Enter patient name"
+    >
+
+    <br><br>
+
+    <button onclick="deletePatient()">
+        Delete Patient
+    </button>
+
+    <hr>
+
+    <h2>View Patients</h2>
+
+    <button onclick="viewPatients()">
+        View All Patients
+    </button>
+
+    <br><br>
+
+    <div id="patientList">
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
