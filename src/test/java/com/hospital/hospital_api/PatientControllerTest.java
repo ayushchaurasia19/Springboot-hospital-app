@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc // fake HTTP requests for testing
+@AutoConfigureMockMvc // fake HTTP requests for testing REST API
 public class PatientControllerTest {
 
     @Autowired
@@ -25,7 +25,7 @@ public class PatientControllerTest {
     @Test
     void testGetPatients() throws Exception {
 
-        mockMvc.perform(get("/patients"))
+        mockMvc.perform(get("/patients")) // GET /patients endpoint
                 .andExpect(status().isOk());
     }
 }
