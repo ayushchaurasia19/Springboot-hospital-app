@@ -1,6 +1,7 @@
 package com.hospital.hospital_api.Controller;
 
 import java.util.ArrayList;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,16 +22,22 @@ public class PatientController {
         return patientList;
     }
 
-    @PostMapping("/patients") // handles POST /pateints
-    public String addPateint(@RequestBody Patient p){ // incoming JSON to java obj
+    @PostMapping("/patients") // handles POST /patients
+    public ResponseEntity<String> addPatient(@RequestBody Patient p){ // incoming JSON to java obj
+        if (p.getName() == null || p.getName().trim().isEmpty() || p.getName().matches(".*\\d.*")) {
+            return ResponseEntity.badRequest().body("Invalid Name. Name must not be blank and cannot contain numbers.");
+        }
+        if (p.getAge() < 1 || p.getAge() > 150) {
+            return ResponseEntity.badRequest().body("Invalid Age. Age must be between 1 and 150.");
+        }
         patientList.add(p);
-        return "Added Patient";
+        return ResponseEntity.ok("Added Patient");
     }
 
     @GetMapping("/patients/search/{name}")
     public Patient searchPatient(@PathVariable String name){ // extract value from URL
         for(Patient p : patientList){
-            if(p.getName().equals(name)){
+            if(p.getName().equalsIgnoreCase(name)){
                 return p;
             }
         }

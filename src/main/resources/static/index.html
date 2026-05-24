@@ -1,78 +1,289 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Hospital Management</title>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --border-color: #e2e8f0;
+            --radius: 8px;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
 
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1.2fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .card:last-child {
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-sizing: border-box;
+            font-family: inherit;
+            transition: border-color 0.15s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .patient-card {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .patient-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0 0 6px 0;
+            color: var(--text-main);
+        }
+
+        .patient-meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .time-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-box input {
+            flex: 1;
+        }
+
+        .search-box button {
+            width: auto;
+            padding: 0 16px;
+        }
+
+        #patientList, #scheduleBoard, #searchResult {
+            margin-top: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+
+        .schedule-time {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .schedule-patient {
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
 <body>
 
-    <h1>Hospital Management System</h1>
+    <div class="container">
+        <header>
+            <h1>Hospital Management System</h1>
+            <p class="subtitle">Book patient visits and manage scheduled appointments</p>
+        </header>
 
-    <hr>
+        <div class="grid">
+            <!-- Left Column: Operations -->
+            <div class="col-left">
+                <div class="card">
+                    <h2>Add Patient</h2>
+                    <div class="form-group">
+                        <label for="name">Patient Name</label>
+                        <input type="text" id="name" placeholder="Enter patient name" pattern="^[^0-9]+$" title="Name must not be blank and cannot contain numbers" required>
+                    </div>
 
-    <h2>Add Patient</h2>
+                    <div class="form-group">
+                        <label for="age">Patient Age</label>
+                        <input type="number" id="age" placeholder="Enter patient age" min="1" max="150" required>
+                    </div>
 
-    <input
-        type="text"
-        id="name"
-        placeholder="Enter patient name"
-    >
+                    <div class="form-group">
+                        <label for="gender">Patient Gender</label>
+                        <input type="text" id="gender" placeholder="Enter patient gender" required>
+                    </div>
 
-    <br><br>
+                    <div class="form-group">
+                        <label for="timeSlot">Required Time Slot</label>
+                        <select id="timeSlot" required>
+                            <option value="" disabled selected>Select a time slot</option>
+                            <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
+                            <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                            <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                            <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
+                            <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
+                            <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
+                        </select>
+                    </div>
 
-    <input
-        type="number"
-        id="age"
-        placeholder="Enter patient age"
-    >
+                    <button id="addPatientBtn" onclick="addPatient()">Add Patient & Book Slot</button>
+                </div>
 
-    <br><br>
+                <div class="card">
+                    <h2>Search Patient</h2>
+                    <div class="form-group search-box">
+                        <input type="text" id="searchName" placeholder="Enter patient name">
+                        <button id="searchPatientBtn" onclick="searchPatient()">Search</button>
+                    </div>
+                    <div id="searchResult"></div>
+                </div>
 
-    <input
-        type="text"
-        id="gender"
-        placeholder="Enter patient gender"
-    >
+                <div class="card">
+                    <h2>Delete Patient</h2>
+                    <div class="form-group search-box">
+                        <input type="text" id="deleteName" placeholder="Enter patient name">
+                        <button id="deletePatientBtn" onclick="deletePatient()">Delete</button>
+                    </div>
+                </div>
+            </div>
 
-    <br><br>
+            <!-- Right Column: Patient Directory & Schedules -->
+            <div class="col-right">
+                <div class="card">
+                    <h2>Patient Directory</h2>
+                    <button id="viewPatientsBtn" onclick="viewPatients()">View All Patients</button>
+                    <div id="patientList"></div>
+                </div>
 
-    <button onclick="addPatient()">
-        Add Patient
-    </button>
-
-    <hr>
-
-    <h2>Delete Patient</h2>
-
-    <input
-        type="text"
-        id="deleteName"
-        placeholder="Enter patient name"
-    >
-
-    <br><br>
-
-    <button onclick="deletePatient()">
-        Delete Patient
-    </button>
-
-    <hr>
-
-    <h2>View Patients</h2>
-
-    <button onclick="viewPatients()">
-        View All Patients
-    </button>
-
-    <br><br>
-
-    <div id="patientList">
-
+                <div class="card">
+                    <h2>Patient Schedules</h2>
+                    <button id="viewScheduleBoardBtn" onclick="viewScheduleBoard()">View Schedule Board</button>
+                    <div id="scheduleBoard"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
-
 </body>
-
 </html>
