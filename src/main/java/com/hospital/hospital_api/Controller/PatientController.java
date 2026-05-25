@@ -1,59 +1,46 @@
 package com.hospital.hospital_api.Controller;
 
-import java.util.ArrayList;
-import org.springframework.http.ResponseEntity;
+import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.service.annotation.DeleteExchange;
 
 import com.hospital.hospital_api.model.Patient;
+import com.hospital.hospital_api.service.PatientService;
 
 @RestController
 public class PatientController {
-    private ArrayList<Patient> patientList = new ArrayList<>();
-    
+
+    private final PatientService patientService;
+
+    public PatientController(PatientService patientService) {
+        this.patientService = patientService;
+    }
+
     @GetMapping("/patients") // handles GET /patients
-    public ArrayList<Patient> getPatient(){
-        return patientList;
+    public List<Patient> getPatient() {
+        return patientService.getAllPatients();
     }
 
     @PostMapping("/patients") // handles POST /patients
-    public ResponseEntity<String> addPatient(@RequestBody Patient p){ // incoming JSON to java obj
-        if (p.getName() == null || p.getName().trim().isEmpty() || p.getName().matches(".*\\d.*")) {
-            return ResponseEntity.badRequest().body("Invalid Name. Name must not be blank and cannot contain numbers.");
-        }
-        if (p.getAge() < 1 || p.getAge() > 150) {
-            return ResponseEntity.badRequest().body("Invalid Age. Age must be between 1 and 150.");
-        }
-        patientList.add(p);
+    public ResponseEntity<String> addPatient(@RequestBody Patient p) { // incoming JSON to java obj
+        patientService.addPatient(p);
         return ResponseEntity.ok("Added Patient");
     }
 
     @GetMapping("/patients/search/{name}")
-    public Patient searchPatient(@PathVariable String name){ // extract value from URL
-        for(Patient p : patientList){
-            if(p.getName().equalsIgnoreCase(name)){
-                return p;
-            }
-        }
-        return null;
+    public Patient searchPatient(@PathVariable String name) { // extract value from URL
+        return patientService.searchByName(name).orElse(null);
     }
 
     @DeleteMapping("/patients/delete/{name}")
-    public String deletePatient(@PathVariable String name){
-        
-        for(int i = 0; i < patientList.size(); i++){
-            if(patientList.get(i).getName().equalsIgnoreCase(name)){
-                patientList.remove(i);
-                return "Patient deleted";
-            }
-        }
-
-        return "Patient not found";
+    public String deletePatient(@PathVariable String name) {
+        boolean deleted = patientService.deleteByName(name);
+        return deleted ? "Patient deleted" : "Patient not found";
     }
 }

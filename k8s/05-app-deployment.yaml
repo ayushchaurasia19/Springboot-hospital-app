@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hospital-app-deployment
+  namespace: hospital-app
+  labels:
+    app: hospital-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hospital-app
+  template:
+    metadata:
+      labels:
+        app: hospital-app
+    spec:
+      containers:
+        - name: hospital-app
+          image: hospital-app:latest
+          # Allows loading locally built image directly without registry pulls
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: appport
+          env:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-configmap
+                  key: DB_URL
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: app-configmap
+                  key: DB_USER
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres-password
+            - name: OTEL_SERVICE_NAME
+              value: "hospital-app"
+            - name: OTEL_TRACES_EXPORTER
+              value: "otlp"
+            - name: OTEL_METRICS_EXPORTER
+              value: "otlp"
+            - name: OTEL_LOGS_EXPORTER
+              value: "otlp"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-collector.hospital-observability.svc.cluster.local:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+          # Kubernetes dynamic status monitoring using Spring Boot Actuator Probes
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hospital-app-service
+  namespace: hospital-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      # Predictable local gateway port
+      nodePort: 30080
+  selector:
+    app: hospital-app

@@ -3,240 +3,620 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Management System</title>
+    <title>Hospital App</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --border-color: #e2e8f0;
-            --radius: 8px;
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-primary: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-success: #10b981;
+            --accent-danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-blur: blur(16px);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
             color: var(--text-main);
-            margin: 0;
-            padding: 24px;
-            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
+        /* Glassmorphic scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        header {
-            margin-bottom: 32px;
+        /* ------------------ AUTHENTICATION CONTAINER ------------------ */
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: var(--transition);
+            display: block; /* Hidden when logged in */
+        }
+
+        .auth-header {
             text-align: center;
+            margin-bottom: 30px;
         }
 
-        h1 {
-            font-size: 2rem;
+        .auth-header h1 {
+            font-size: 2.2rem;
             font-weight: 700;
-            color: var(--text-main);
-            margin: 0 0 8px 0;
+            background: linear-gradient(to right, #a5b4fc, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
 
-        p.subtitle {
+        .auth-header p {
             color: var(--text-muted);
-            margin: 0;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
-        .grid {
+        .tab-buttons {
+            display: flex;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        button.btn-primary {
+            width: 100%;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        }
+
+        button.btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        button.btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* ------------------ MAIN ADMIN DASHBOARD ------------------ */
+        .dashboard-container {
+            width: 100%;
+            max-width: 1300px;
+            display: none; /* Shown after auth */
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 20px 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(99, 102, 241, 0.15);
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-weight: 700;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover {
+            background: var(--accent-danger);
+            color: white;
+        }
+
+        /* ------------------ GRID LAYOUT ------------------ */
+        .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 24px;
         }
 
-        @media (min-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr 1.2fr;
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .grid-full-width {
+                grid-column: span 2;
             }
         }
 
-        .card {
+        .panel {
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-        }
-
-        .card:last-child {
-            margin-bottom: 0;
-        }
-
-        h2 {
-            font-size: 1.25rem;
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: var(--text-main);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--text-muted);
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px 12px;
-            font-size: 0.95rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            box-sizing: border-box;
-            font-family: inherit;
-            transition: border-color 0.15s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        button {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-            font-family: inherit;
-        }
-
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .patient-card {
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 14px;
-            margin-bottom: 12px;
-            background: #f8fafc;
-            position: relative;
-        }
-
-        .patient-name {
-            font-weight: 600;
-            font-size: 1rem;
-            margin: 0 0 6px 0;
-            color: var(--text-main);
-        }
-
-        .patient-meta {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        .time-badge {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 2px 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 9999px;
-            background: #e0e7ff;
-            color: #4338ca;
-        }
-
-        .search-box {
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
             display: flex;
-            gap: 8px;
+            flex-direction: column;
         }
 
-        .search-box input {
-            flex: 1;
-        }
-
-        .search-box button {
-            width: auto;
-            padding: 0 16px;
-        }
-
-        #patientList, #scheduleBoard, #searchResult {
-            margin-top: 16px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .schedule-item {
+        .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding: 10px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 12px;
         }
 
-        .schedule-item:last-child {
-            border-bottom: none;
-        }
-
-        .schedule-time {
+        .panel-title h2 {
+            font-size: 1.25rem;
             font-weight: 600;
-            color: var(--primary);
-            font-size: 0.9rem;
+            color: var(--text-main);
         }
 
-        .schedule-patient {
+        .panel-title p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Lists & Directory Layout */
+        .items-list {
+            max-height: 380px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-style: italic;
             font-size: 0.95rem;
+        }
+
+        /* Gorgeous Custom Cards */
+        .custom-card {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .custom-card:hover {
+            background: rgba(15, 23, 42, 0.5);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateX(4px);
+        }
+
+        .card-details h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .card-details p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 99px;
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Search Layout */
+        .flex-row-search {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .flex-row-search input {
+            flex: 1;
+        }
+
+        .btn-inline {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-inline:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-danger:hover {
+            background: var(--accent-danger);
+            color: white;
+        }
+
+        /* Dynamic Slot Selection grid */
+        .slots-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .slot-checkbox-label {
+            display: block;
+            position: relative;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition);
+        }
+
+        .slot-checkbox-label:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .slot-checkbox-label input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .slot-checkbox-label.selected {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Access Restricted Overlay */
+        .restricted-panel {
+            position: relative;
+        }
+
+        .admin-only-lock {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 10;
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .restricted-panel.locked .admin-only-lock {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .admin-only-lock svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .admin-only-lock h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .admin-only-lock p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Hospital Management System</h1>
-            <p class="subtitle">Book patient visits and manage scheduled appointments</p>
-        </header>
+    <!-- 1. AUTHENTICATION COMPONENT -->
+    <div class="auth-container" id="authSection">
+        <div class="auth-header">
+            <h1>Hospital App</h1>
+            <p>Premium Clinical Operations Platform</p>
+        </div>
 
-        <div class="grid">
-            <!-- Left Column: Operations -->
-            <div class="col-left">
-                <div class="card">
-                    <h2>Add Patient</h2>
-                    <div class="form-group">
-                        <label for="name">Patient Name</label>
-                        <input type="text" id="name" placeholder="Enter patient name" pattern="^[^0-9]+$" title="Name must not be blank and cannot contain numbers" required>
+        <div class="tab-buttons">
+            <button class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+            <button class="tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginFormSection">
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" placeholder="e.g., john_doe" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerFormSection" style="display: none;">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <input type="text" id="regUsername" placeholder="e.g., admin_portal" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" placeholder="••••••••" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="regRole">Administrative Role</label>
+                    <select id="regRole" required>
+                        <option value="" disabled selected>Select user role</option>
+                        <option value="RECEPTIONIST">Receptionist (Book visits & registry)</option>
+                        <option value="ADMIN">Administrator (Full panel control)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. APPLICATION DASHBOARD -->
+    <div class="dashboard-container" id="dashboardSection">
+        <!-- Dashboard Top Header Bar -->
+        <div class="dashboard-header">
+            <div class="brand">
+                <h1>Hospital App</h1>
+                <p>Intelligent Operations & Resource Scheduling</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-name" id="displayUsername">John Doe</div>
+                    <span class="user-role" id="displayRole">Receptionist</span>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()">Log Out</button>
+            </div>
+        </div>
+
+        <!-- Grid Layout -->
+        <div class="dashboard-grid">
+
+            <!-- Panel 1: Patient Registration (Receptionist/Admin) -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h2>Patient Registry</h2>
+                        <p>Register new clinical patients into the database</p>
                     </div>
-
+                </div>
+                <form onsubmit="registerPatient(event)">
                     <div class="form-group">
-                        <label for="age">Patient Age</label>
-                        <input type="number" id="age" placeholder="Enter patient age" min="1" max="150" required>
+                        <label for="patName">Full Name</label>
+                        <input type="text" id="patName" placeholder="Patient's complete name" required pattern="^[^0-9]+$" title="Name cannot contain numbers">
                     </div>
-
-                    <div class="form-group">
-                        <label for="gender">Patient Gender</label>
-                        <input type="text" id="gender" placeholder="Enter patient gender" required>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="patAge">Age</label>
+                            <input type="number" id="patAge" placeholder="e.g., 28" required min="1" max="150">
+                        </div>
+                        <div class="form-group">
+                            <label for="patGender">Gender</label>
+                            <select id="patGender" required>
+                                <option value="" disabled selected>Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
                     </div>
-
                     <div class="form-group">
-                        <label for="timeSlot">Required Time Slot</label>
-                        <select id="timeSlot" required>
-                            <option value="" disabled selected>Select a time slot</option>
+                        <label for="patTimeSlot">Initial Preferred Hour</label>
+                        <select id="patTimeSlot" required>
+                            <option value="" disabled selected>Choose slot</option>
                             <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
                             <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
                             <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
@@ -245,45 +625,130 @@
                             <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
                         </select>
                     </div>
+                    <button type="submit" class="btn-primary">Register Patient</button>
+                </form>
+            </div>
 
-                    <button id="addPatientBtn" onclick="addPatient()">Add Patient & Book Slot</button>
+            <!-- Panel 2: Book Appointments (Receptionist/Admin) -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h2>Appointment Scheduling</h2>
+                        <p>Link patients with doctors for specific time slots</p>
+                    </div>
+                </div>
+                <form onsubmit="scheduleAppointment(event)">
+                    <div class="form-group">
+                        <label for="apptPatient">Select Patient</label>
+                        <select id="apptPatient" required>
+                            <option value="" disabled selected>Loading patients...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="apptDoctor">Select Doctor</label>
+                        <select id="apptDoctor" onchange="updateAppointmentTimeSlots()" required>
+                            <option value="" disabled selected>Loading doctors...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="apptTimeSlot">Available Time Slot</label>
+                        <select id="apptTimeSlot" required>
+                            <option value="" disabled selected>Select a doctor first</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Schedule Visit</button>
+                </form>
+            </div>
+
+            <!-- Panel 3: Doctor Directory (ADMIN ONLY to Add) -->
+            <div class="panel restricted-panel" id="doctorPanel">
+                <!-- Restricted Lock Overlay -->
+                <div class="admin-only-lock">
+                    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    <h3>Admin Panel Restriction</h3>
+                    <p>Only administrative roles can register medical staff</p>
                 </div>
 
-                <div class="card">
-                    <h2>Search Patient</h2>
-                    <div class="form-group search-box">
-                        <input type="text" id="searchName" placeholder="Enter patient name">
-                        <button id="searchPatientBtn" onclick="searchPatient()">Search</button>
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h2>Medical Directory</h2>
+                        <p>Add and view medical doctors</p>
                     </div>
-                    <div id="searchResult"></div>
                 </div>
-
-                <div class="card">
-                    <h2>Delete Patient</h2>
-                    <div class="form-group search-box">
-                        <input type="text" id="deleteName" placeholder="Enter patient name">
-                        <button id="deletePatientBtn" onclick="deletePatient()">Delete</button>
+                <form onsubmit="registerDoctor(event)" style="margin-bottom: 24px;">
+                    <div class="form-group">
+                        <label for="docName">Doctor Name</label>
+                        <input type="text" id="docName" placeholder="Dr. Firstname Lastname" required pattern="^[^0-9]+$" title="Name cannot contain numbers">
                     </div>
+                    <div class="form-group">
+                        <label for="docSpec">Medical Speciality</label>
+                        <input type="text" id="docSpec" placeholder="e.g. Cardiology, Neurology" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Available Hours (Select multiple)</label>
+                        <div class="slots-selector">
+                            <label class="slot-checkbox-label" id="lbl_slot1"><input type="checkbox" value="09:00 AM - 10:00 AM" onchange="toggleSlotBadge('slot1')">09:00 AM - 10:00 AM</label>
+                            <label class="slot-checkbox-label" id="lbl_slot2"><input type="checkbox" value="10:00 AM - 11:00 AM" onchange="toggleSlotBadge('slot2')">10:00 AM - 11:00 AM</label>
+                            <label class="slot-checkbox-label" id="lbl_slot3"><input type="checkbox" value="11:00 AM - 12:00 PM" onchange="toggleSlotBadge('slot3')">11:00 AM - 12:00 PM</label>
+                            <label class="slot-checkbox-label" id="lbl_slot4"><input type="checkbox" value="02:00 PM - 03:00 PM" onchange="toggleSlotBadge('slot4')">02:00 PM - 03:00 PM</label>
+                            <label class="slot-checkbox-label" id="lbl_slot5"><input type="checkbox" value="03:00 PM - 04:00 PM" onchange="toggleSlotBadge('slot5')">03:00 PM - 04:00 PM</label>
+                            <label class="slot-checkbox-label" id="lbl_slot6"><input type="checkbox" value="04:00 PM - 05:00 PM" onchange="toggleSlotBadge('slot6')">04:00 PM - 05:00 PM</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Add Doctor</button>
+                </form>
+            </div>
+
+            <!-- Panel 4: Active Schedules Board (Receptionist/Admin) -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h2>Schedules Board</h2>
+                        <p>Live overview of scheduled and active doctor visits</p>
+                    </div>
+                </div>
+                <div class="items-list" id="scheduleListContainer">
+                    <div class="empty-state">No appointments booked yet.</div>
                 </div>
             </div>
 
-            <!-- Right Column: Patient Directory & Schedules -->
-            <div class="col-right">
-                <div class="card">
-                    <h2>Patient Directory</h2>
-                    <button id="viewPatientsBtn" onclick="viewPatients()">View All Patients</button>
-                    <div id="patientList"></div>
+            <!-- Panel 5: Patient Search & Directory Management (Full width) -->
+            <div class="panel grid-full-width">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h2>Patients Directory Management</h2>
+                        <p>Search, locate and discharge registered patients</p>
+                    </div>
+                </div>
+                
+                <div class="flex-row-search">
+                    <input type="text" id="directorySearchInput" placeholder="Enter patient name to search...">
+                    <button class="btn-inline" onclick="triggerPatientSearch()">Search Registry</button>
+                    <button class="btn-inline" style="background: rgba(255,255,255,0.06); border: 1px solid var(--card-border);" onclick="fetchFullPatientsList()">Clear & Refresh</button>
                 </div>
 
-                <div class="card">
-                    <h2>Patient Schedules</h2>
-                    <button id="viewScheduleBoardBtn" onclick="viewScheduleBoard()">View Schedule Board</button>
-                    <div id="scheduleBoard"></div>
+                <div class="items-list" id="directoryListContainer" style="max-height: 500px;">
+                    <div class="empty-state">Loading registry...</div>
                 </div>
             </div>
+
+            <!-- Panel 6: Doctor Directory Overview List (Full width) -->
+            <div class="panel grid-full-width">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h2>Doctors Roster</h2>
+                        <p>Active medical professionals registered on Hospital App</p>
+                    </div>
+                </div>
+                <div class="items-list" id="doctorsRosterContainer">
+                    <div class="empty-state">No doctors registered yet.</div>
+                </div>
+            </div>
+
         </div>
     </div>
 
+    <!-- JavaScript script file -->
     <script src="script.js"></script>
 </body>
 </html>

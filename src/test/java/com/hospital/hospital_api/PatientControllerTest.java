@@ -1,17 +1,15 @@
 package com.hospital.hospital_api;
 
-import com.hospital.hospital_api.Controller.PatientController;
-import com.hospital.hospital_api.model.Patient;
+import com.hospital.hospital_api.repository.PatientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -19,18 +17,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser(username = "admin", roles = {"ADMIN"})
 public class PatientControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private PatientController patientController;
+    private PatientRepository patientRepository;
 
     @BeforeEach
     void setUp() {
-        // Clear the in-memory array list before every test to ensure test isolation
-        ReflectionTestUtils.setField(patientController, "patientList", new ArrayList<Patient>());
+        // Clear the database before every test to ensure test isolation
+        patientRepository.deleteAll();
     }
 
     @Test
@@ -339,9 +338,7 @@ public class PatientControllerTest {
 
     @Test
     void testFailingSpecialCharName() throws Exception {
-        // This test will fail on purpose.
-        // The controller allows special characters in names (returns 200 OK),
-        // but this test asserts that names with special characters are rejected (expects 400 Bad Request).
+        // his test asserts that names with special characters are rejected (expects 400 Bad Request).
         String patientJson = """
                 {
                     "name": "Jane_Doe!",
@@ -355,5 +352,29 @@ public class PatientControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientJson))
                 .andExpect(status().isBadRequest()); // Fail: actually returns 200 OK
+    }
+
+    @Test
+    void testAddPatientWithBlankFieldsRejected() throws Exception {
+        // Test when required fields (like name/age) are blank/invalid, expecting Bad Request
+        String patientJson = """
+                {
+                    "name": "abc",
+                    "age": 22,
+                    "gender": "Male",
+                    "timeSlot": ""
+                }
+                """;
+
+        mockMvc.perform(post("/patients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patientJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid Name")));
+
+        // Verify patient was not added
+        mockMvc.perform(get("/patients"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 }
